@@ -2,7 +2,10 @@ package com.example.inmemory_events_api.service;
 
 import com.example.inmemory_events_api.model.VenueDTO;
 import org.springframework.stereotype.Service;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VenueService {
@@ -11,7 +14,7 @@ public class VenueService {
     private Long idCounter = 1L;
 
     public List<VenueDTO> getAllVenues() {
-        return venues;
+        return new ArrayList<>(venues);
     }
 
     public Optional<VenueDTO> getVenueById(Long id) {
@@ -25,10 +28,10 @@ public class VenueService {
     }
 
     public Optional<VenueDTO> updateVenue(Long id, VenueDTO newVenue) {
-        return getVenueById(id).map(v -> {
-            v.setName(newVenue.getName());
-            v.setLocation(newVenue.getLocation());
-            return v;
+        return getVenueById(id).map(existing -> {
+            existing.setName(newVenue.getName());
+            existing.setLocation(newVenue.getLocation());
+            return existing;
         });
     }
 

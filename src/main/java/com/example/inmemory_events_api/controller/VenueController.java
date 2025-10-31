@@ -2,8 +2,11 @@ package com.example.inmemory_events_api.controller;
 
 import com.example.inmemory_events_api.model.VenueDTO;
 import com.example.inmemory_events_api.service.VenueService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -28,12 +31,13 @@ public class VenueController {
     }
 
     @PostMapping
-    public ResponseEntity<VenueDTO> create(@RequestBody VenueDTO venue) {
-        return ResponseEntity.status(201).body(venueService.createVenue(venue));
+    public ResponseEntity<VenueDTO> create(@Valid @RequestBody VenueDTO venue) {
+        VenueDTO created = venueService.createVenue(venue);
+        return ResponseEntity.created(URI.create("/api/venues/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> update(@PathVariable Long id, @RequestBody VenueDTO venue) {
+    public ResponseEntity<VenueDTO> update(@PathVariable Long id, @Valid @RequestBody VenueDTO venue) {
         return venueService.updateVenue(id, venue)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

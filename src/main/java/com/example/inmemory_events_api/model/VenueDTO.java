@@ -1,9 +1,8 @@
 package com.example.inmemory_events_api.model;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
@@ -11,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 public class VenueDTO {
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "El nombre del venue no puede estar vacío")
     private String name;
 
     private String location;

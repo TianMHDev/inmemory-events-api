@@ -1,9 +1,11 @@
 package com.example.inmemory_events_api.controller;
-
 import com.example.inmemory_events_api.model.EventDTO;
 import com.example.inmemory_events_api.service.EventService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -28,12 +30,13 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDTO> create(@RequestBody EventDTO event) {
-        return ResponseEntity.status(201).body(eventService.createEvent(event));
+    public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO event) {
+        EventDTO created = eventService.createEvent(event);
+        return ResponseEntity.created(URI.create("/api/events/" + created.getId())).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDTO> update(@PathVariable Long id, @RequestBody EventDTO event) {
+    public ResponseEntity<EventDTO> update(@PathVariable Long id, @Valid @RequestBody EventDTO event) {
         return eventService.updateEvent(id, event)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
