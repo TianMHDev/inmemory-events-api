@@ -1,52 +1,54 @@
 package com.example.inmemory_events_api.controller;
 
-import com.example.inmemory_events_api.model.VenueDTO;
+import com.example.inmemory_events_api.model.VenueEntity;
 import com.example.inmemory_events_api.service.VenueService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/venues")
+@RequestMapping("/venues")
 public class VenueController {
 
     private final VenueService venueService;
+
     public VenueController(VenueService venueService) {
         this.venueService = venueService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<VenueDTO>> getAll() {
-        return ResponseEntity.ok(venueService.getAllVenues());
+    @PostMapping
+    public ResponseEntity<VenueEntity> createVenue(@Valid @RequestBody VenueEntity venue) {
+        VenueEntity createdVenue = venueService.createVenue(venue);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdVenue);
     }
+
+    @GetMapping
+    public ResponseEntity<List<VenueEntity>> getAllVenues() {
+        List<VenueEntity> venues = venueService.getAllVenues();
+        return ResponseEntity.ok(venues);
+    }
+
 
     @GetMapping("/{id}")
-    public ResponseEntity<VenueDTO> getById(@PathVariable Long id) {
-        return venueService.getVenueById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<VenueEntity> getVenueById(@PathVariable Long id) {
+        VenueEntity venue = venueService.getVenueById(id);
+        return ResponseEntity.ok(venue);
     }
 
-    @PostMapping
-    public ResponseEntity<VenueDTO> create(@Valid @RequestBody VenueDTO venue) {
-        VenueDTO created = venueService.createVenue(venue);
-        return ResponseEntity.created(URI.create("/api/venues/" + created.getId())).body(created);
-    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> update(@PathVariable Long id, @Valid @RequestBody VenueDTO venue) {
-        return venueService.updateVenue(id, venue)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<VenueEntity> updateVenue(@PathVariable Long id, @Valid @RequestBody VenueEntity updatedVenue) {
+        VenueEntity venue = venueService.updateVenue(id, updatedVenue);
+        return ResponseEntity.ok(venue);
     }
 
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return venueService.deleteVenue(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> deleteVenue(@PathVariable Long id) {
+        venueService.deleteVenue(id);
+        return ResponseEntity.noContent().build();
     }
 }
