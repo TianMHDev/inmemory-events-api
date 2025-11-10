@@ -1,23 +1,31 @@
 package com.example.inmemory_events_api.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "events")
 public class EventDTO {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre del evento no puede estar vacío")
-    private String name;
+    @NotBlank(message = "El título del evento no puede estar vacío")
+    @Size(min = 3, max = 100, message = "El título debe tener entre 3 y 100 caracteres")
+    private String title;
 
-    @NotNull(message = "El venueId es obligatorio")
-    private Long venueId;
+    @NotBlank(message = "La descripción no puede estar vacía")
+    private String description;
 
-    @NotBlank(message = "La fecha no puede estar vacía")
-    private String date;
+    @Future(message = "La fecha del evento debe ser una fecha futura")
+    private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name = "venue_id")
+    @NotNull(message = "El evento debe estar asociado a un venue")
+    private VenueDTO venue;
 }

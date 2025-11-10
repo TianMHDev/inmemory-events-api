@@ -1,17 +1,24 @@
 package com.example.inmemory_events_api.model;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "venues")
 public class VenueDTO {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "El nombre del venue no puede estar vacío")
     private String name;
 
-    private String location;
+    @NotBlank(message = "La dirección del venue no puede estar vacía")
+    private String address;
+
+    @Positive(message = "La capacidad debe ser mayor que 0")
+    private int capacity;
 }

@@ -1,41 +1,47 @@
 package com.example.inmemory_events_api.service;
 
+import com.example.inmemory_events_api.exception.ResourceNotFoundException;
 import com.example.inmemory_events_api.model.VenueDTO;
+import com.example.inmemory_events_api.repository.VenueRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VenueService {
 
-    private final List<VenueDTO> venues = new ArrayList<>();
-    private Long idCounter = 1L;
+    private final VenueRepository venueRepository;
 
-    public List<VenueDTO> getAllVenues() {
-        return new ArrayList<>(venues);
+    public VenueService(VenueRepository venueRepository) {
+        this.venueRepository = venueRepository;
     }
 
-    public Optional<VenueDTO> getVenueById(Long id) {
-        return venues.stream().filter(v -> v.getId().equals(id)).findFirst();
+    public List<VenueDTO> findAll() {
+        return venueRepository.findAll();
     }
 
-    public VenueDTO createVenue(VenueDTO venue) {
-        venue.setId(idCounter++);
-        venues.add(venue);
-        return venue;
+    public VenueDTO findById(Long id) {
+        return venueRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado con ID: " + id));
     }
 
-    public Optional<VenueDTO> updateVenue(Long id, VenueDTO newVenue) {
-        return getVenueById(id).map(existing -> {
-            existing.setName(newVenue.getName());
-            existing.setLocation(newVenue.getLocation());
-            return existing;
-        });
+    public VenueDTO save(VenueDTO venue) {
+        // Validar duplicados por nombre
+        if (venueRepository.existsByName(venue.getName())) {
+            throw new IllegalArgumentException("Ya existe un venue con el nombre: " + venue.getName());
+        }
+        return venueRepository.save(venue);
     }
 
-    public boolean deleteVenue(Long id) {
-        return venues.removeIf(v -> v.getId().equals(id));
+    public VenueDTO update(Long id, VenueDTO details) {
+        VenueDTO existing = findById(id);
+        existing.setName(details.getName());
+        existing.setAddress(details.getAddress());
+        existing.setCapacity(details.getCapacity());
+        return venueRepository.save(existing);
+    }
+
+    public void delete(Long id) {
+        venueRepository.deleteById(id);
     }
 }
