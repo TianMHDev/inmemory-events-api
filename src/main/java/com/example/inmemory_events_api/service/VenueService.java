@@ -16,32 +16,35 @@ public class VenueService {
         this.venueRepository = venueRepository;
     }
 
+    public VenueDTO create(VenueDTO venueDTO) {
+        if (venueRepository.existsByNameIgnoreCase(venueDTO.getName())) {
+            throw new IllegalArgumentException("Ya existe un venue con el nombre: " + venueDTO.getName());
+        }
+        return venueRepository.save(venueDTO);
+    }
+
     public List<VenueDTO> findAll() {
         return venueRepository.findAll();
     }
 
     public VenueDTO findById(Long id) {
         return venueRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Venue no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Venue con ID " + id + " no encontrado"));
     }
 
-    public VenueDTO save(VenueDTO venue) {
-        // Validar duplicados por nombre
-        if (venueRepository.existsByName(venue.getName())) {
-            throw new IllegalArgumentException("Ya existe un venue con el nombre: " + venue.getName());
-        }
-        return venueRepository.save(venue);
-    }
-
-    public VenueDTO update(Long id, VenueDTO details) {
+    public VenueDTO update(Long id, VenueDTO venueDTO) {
         VenueDTO existing = findById(id);
-        existing.setName(details.getName());
-        existing.setAddress(details.getAddress());
-        existing.setCapacity(details.getCapacity());
+        existing.setName(venueDTO.getName());
+        existing.setAddress(venueDTO.getAddress());
+        existing.setCity(venueDTO.getCity());
+        existing.setCapacity(venueDTO.getCapacity());
         return venueRepository.save(existing);
     }
 
     public void delete(Long id) {
+        if (!venueRepository.findById(id).isPresent()) {
+            throw new ResourceNotFoundException("Venue con ID " + id + " no encontrado");
+        }
         venueRepository.deleteById(id);
     }
 }

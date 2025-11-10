@@ -18,9 +18,14 @@ public class VenueController {
         this.venueService = venueService;
     }
 
+    @PostMapping
+    public ResponseEntity<VenueDTO> create(@Valid @RequestBody VenueDTO venueDTO) {
+        return ResponseEntity.status(201).body(venueService.create(venueDTO));
+    }
+
     @GetMapping
-    public List<VenueDTO> getAll() {
-        return venueService.findAll();
+    public ResponseEntity<List<VenueDTO>> getAll() {
+        return ResponseEntity.ok(venueService.findAll());
     }
 
     @GetMapping("/{id}")
@@ -28,14 +33,9 @@ public class VenueController {
         return ResponseEntity.ok(venueService.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<VenueDTO> create(@Valid @RequestBody VenueDTO venue) {
-        return ResponseEntity.status(201).body(venueService.save(venue));
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> update(@PathVariable Long id, @Valid @RequestBody VenueDTO venue) {
-        return ResponseEntity.ok(venueService.update(id, venue));
+    public ResponseEntity<VenueDTO> update(@PathVariable Long id, @Valid @RequestBody VenueDTO venueDTO) {
+        return ResponseEntity.ok(venueService.update(id, venueDTO));
     }
 
     @DeleteMapping("/{id}")

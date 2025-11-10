@@ -3,9 +3,12 @@ package com.example.inmemory_events_api.service;
 import com.example.inmemory_events_api.exception.ResourceNotFoundException;
 import com.example.inmemory_events_api.model.EventDTO;
 import com.example.inmemory_events_api.repository.EventRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -16,32 +19,22 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public List<EventDTO> findAll() {
-        return eventRepository.findAll();
-    }
-
-    public EventDTO findById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado con ID: " + id));
-    }
-
-    public EventDTO save(EventDTO event) {
-        if (eventRepository.existsByTitle(event.getTitle())) {
-            throw new IllegalArgumentException("Ya existe un evento con el título: " + event.getTitle());
+    // 🔹 Guardar evento con validación de duplicados
+    public EventDTO create(EventDTO eventDTO) {
+        if (eventRepository.existsByTitleIgnoreCase(eventDTO.getTitle())) {
+            throw new IllegalArgumentException("Ya existe un evento con el título: " + eventDTO.getTitle());
         }
-        return eventRepository.save(event);
+        return eventRepository.save(eventDTO);
     }
 
-    public EventDTO update(Long id, EventDTO details) {
-        EventDTO existing = findById(id);
-        existing.setTitle(details.getTitle());
-        existing.setDescription(details.getDescription());
-        existing.setDate(details.getDate());
-        existing.setVenue(details.getVenue());
-        return eventRepository.save(existing);
-    }
+    // 🔹 Filtros + paginación
+    public Page<EventDTO> getFiltered(Optional<String> city, Optional<String> category,
+                                      Optional<LocalDate> fechaInicio, Pageable pageable) {
 
-    public void delete(Long id) {
-        eventRepository.deleteById(id);
+        String cityFilter = city.orElse("");
+        String categoryFilter = category.orElse("");
+        LocalDate dateFilter = fechaInicio.orElse(LocalDate.now());
+
+        return eventRepository.findFiltered(cityFilter, categoryFilter, dateFilter, pageable);
     }
 }
