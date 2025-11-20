@@ -1,8 +1,8 @@
 package com.example.inmemory_events_api.service;
 
 import com.example.inmemory_events_api.exception.ResourceNotFoundException;
-import com.example.inmemory_events_api.model.VenueEntity;
-import com.example.inmemory_events_api.repository.VenueRepository;
+import com.example.inmemory_events_api.infraestructura.entity.VenueEntity;
+import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.VenueRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.inmemory_events_api.model;
+package com.example.inmemory_events_api.infraestructura.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

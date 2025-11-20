@@ -1,6 +1,6 @@
-package com.example.inmemory_events_api.controller;
+package com.example.inmemory_events_api.infraestructura.adapters.in.web;
 
-import com.example.inmemory_events_api.model.VenueEntity;
+import com.example.inmemory_events_api.infraestructura.entity.VenueEntity;
 import com.example.inmemory_events_api.service.VenueService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
