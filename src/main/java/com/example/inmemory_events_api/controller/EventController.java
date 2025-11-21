@@ -2,49 +2,76 @@ package com.example.inmemory_events_api.controller;
 
 import com.example.inmemory_events_api.model.EventDTO;
 import com.example.inmemory_events_api.service.EventService;
-import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
+import com.example.inmemory_events_api.exception.ResourceNotFoundException;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
+@Tag(name = "Eventos", description = "Operaciones CRUD para eventos")
 public class EventController {
 
-    private final EventService eventService;
+    private final EventService service;
 
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
+    public EventController(EventService service) {
+        this.service = service;
     }
 
-
-    @PostMapping
-    public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO event) {
-        return ResponseEntity.status(201).body(eventService.create(event));
-    }
-
-
+    @Operation(summary = "Obtener todos los eventos", description = "Retorna una lista completa de eventos almacenados")
+    @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente")
     @GetMapping
-    public ResponseEntity<Page<EventDTO>> getFiltered(
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
-            @PageableDefault(size = 5, sort = "date") Pageable pageable) {
+    public List<EventDTO> getAll() {
+        return service.getAllEvents();
+    }
 
-        Page<EventDTO> result = eventService.getFiltered(
-                Optional.ofNullable(city),
-                Optional.ofNullable(category),
-                Optional.ofNullable(fechaInicio),
-                pageable
-        );
+    @Operation(
+            summary = "Crear un nuevo evento",
+            description = "Registra un evento con los campos obligatorios",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = EventDTO.class),
+                            examples = @ExampleObject(value = """
+                        {
+                          "id": 1,
+                          "name": "Festival de Música",
+                          "location": "Medellín",
+                          "date": "2025-12-10"
+                        }
+                        """)
+                    )
+            )
+    )
+    @ApiResponse(responseCode = "201", description = "Evento creado correctamente")
+    @PostMapping
+    public ResponseEntity<EventDTO> create(@RequestBody EventDTO dto) {
+        return ResponseEntity.status(201).body(service.createEvent(dto));
+    }
 
-        return ResponseEntity.ok(result);
+    @Operation(summary = "Buscar evento por ID", description = "Devuelve un evento específico si existe")
+    @ApiResponse(responseCode = "404", description = "Evento no encontrado")
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDTO> getById(@PathVariable Long id) {
+        return service.getEventById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento con ID " + id + " no encontrado"));
+    }
+
+    @Operation(summary = "Eliminar evento", description = "Elimina un evento existente por ID")
+    @ApiResponse(responseCode = "204", description = "Evento eliminado correctamente")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteEvent(id);
+        return ResponseEntity.noContent().build();
     }
 }

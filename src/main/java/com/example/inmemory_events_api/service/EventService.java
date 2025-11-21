@@ -1,40 +1,41 @@
 package com.example.inmemory_events_api.service;
-
-import com.example.inmemory_events_api.exception.ResourceNotFoundException;
 import com.example.inmemory_events_api.model.EventDTO;
-import com.example.inmemory_events_api.repository.EventRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class EventService {
 
-    private final EventRepository eventRepository;
+    private final List<EventDTO> events = new ArrayList<>();
+    private Long idCounter = 1L;
 
-    public EventService(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
+    public List<EventDTO> getAllEvents() {
+        return new ArrayList<>(events);
     }
 
-    // 🔹 Guardar evento con validación de duplicados
-    public EventDTO create(EventDTO eventDTO) {
-        if (eventRepository.existsByTitleIgnoreCase(eventDTO.getTitle())) {
-            throw new IllegalArgumentException("Ya existe un evento con el título: " + eventDTO.getTitle());
-        }
-        return eventRepository.save(eventDTO);
+    public Optional<EventDTO> getEventById(Long id) {
+        return events.stream().filter(e -> e.getId().equals(id)).findFirst();
     }
 
-    // 🔹 Filtros + paginación
-    public Page<EventDTO> getFiltered(Optional<String> city, Optional<String> category,
-                                      Optional<LocalDate> fechaInicio, Pageable pageable) {
+    public EventDTO createEvent(EventDTO event) {
+        event.setId(idCounter++);
+        events.add(event);
+        return event;
+    }
 
-        String cityFilter = city.orElse("");
-        String categoryFilter = category.orElse("");
-        LocalDate dateFilter = fechaInicio.orElse(LocalDate.now());
+    public Optional<EventDTO> updateEvent(Long id, EventDTO newEvent) {
+        return getEventById(id).map(existing -> {
+            existing.setName(newEvent.getName());
+            existing.setVenueId(newEvent.getVenueId());
+            existing.setDate(newEvent.getDate());
+            return existing;
+        });
+    }
 
-        return eventRepository.findFiltered(cityFilter, categoryFilter, dateFilter, pageable);
+    public boolean deleteEvent(Long id) {
+        return events.removeIf(e -> e.getId().equals(id));
     }
 }
