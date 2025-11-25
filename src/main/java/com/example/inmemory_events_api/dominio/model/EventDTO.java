@@ -1,4 +1,4 @@
-package com.example.inmemory_events_api.domain.model;
+package com.example.inmemory_events_api.dominio.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

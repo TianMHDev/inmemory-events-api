@@ -1,7 +1,7 @@
 package com.example.inmemory_events_api.infraestructura.adapters.in.web;
 
-import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.EventEntity;
-import com.example.inmemory_events_api.application.usecase.EventService;
+import com.example.inmemory_events_api.dominio.model.EventDTO;
+import com.example.inmemory_events_api.aplicacion.usecase.EventService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,30 +20,36 @@ public class EventController {
     }
 
     @GetMapping
-    public List<EventEntity> getAllEvents() {
+    public List<EventDTO> getAllEvents() {
         return eventService.getAllEvents();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventEntity> getEventById(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.getEventById(id));
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
+        return eventService.getEventById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<EventEntity> createEvent(@Valid @RequestBody EventEntity event) {
-        EventEntity savedEvent = eventService.createEvent(event);
+    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventDTO event) {
+        EventDTO savedEvent = eventService.createEvent(event);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventEntity> updateEvent(@PathVariable Long id, @Valid @RequestBody EventEntity event) {
-        EventEntity updatedEvent = eventService.updateEvent(id, event);
-        return ResponseEntity.ok(updatedEvent);
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @Valid @RequestBody EventDTO event) {
+        return eventService.updateEvent(id, event)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        eventService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
+        if (eventService.deleteEvent(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
