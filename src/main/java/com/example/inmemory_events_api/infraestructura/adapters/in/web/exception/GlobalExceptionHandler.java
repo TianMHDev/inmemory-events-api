@@ -1,4 +1,4 @@
-package com.example.inmemory_events_api.exception;
+package com.example.inmemory_events_api.infraestructura.adapters.in.web.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

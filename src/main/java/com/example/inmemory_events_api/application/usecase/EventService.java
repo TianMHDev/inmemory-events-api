@@ -1,5 +1,5 @@
-package com.example.inmemory_events_api.service;
-import com.example.inmemory_events_api.model.EventDTO;
+package com.example.inmemory_events_api.application.usecase;
+import com.example.inmemory_events_api.domain.model.EventDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

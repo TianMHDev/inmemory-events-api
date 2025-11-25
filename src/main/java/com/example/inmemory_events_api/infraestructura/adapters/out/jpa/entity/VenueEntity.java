@@ -1,4 +1,4 @@
-package com.example.inmemory_events_api.infraestructura.entity;
+package com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
