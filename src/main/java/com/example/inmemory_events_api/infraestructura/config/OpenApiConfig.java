@@ -1,4 +1,4 @@
-package com.example.inmemory_events_api.config;
+package com.example.inmemory_events_api.infraestructura.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
