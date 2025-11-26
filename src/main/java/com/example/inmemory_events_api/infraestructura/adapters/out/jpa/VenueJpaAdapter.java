@@ -3,6 +3,7 @@ package com.example.inmemory_events_api.infraestructura.adapters.out.jpa;
 import com.example.inmemory_events_api.dominio.model.VenueDTO;
 import com.example.inmemory_events_api.dominio.ports.out.VenueRepositoryPort;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.VenueEntity;
+import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.mapper.VenueMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,28 +14,31 @@ import java.util.stream.Collectors;
 public class VenueJpaAdapter implements VenueRepositoryPort {
 
     private final VenueRepository venueRepository;
+    private final VenueMapper venueMapper;
 
-    public VenueJpaAdapter(VenueRepository venueRepository) {
+    public VenueJpaAdapter(VenueRepository venueRepository, VenueMapper venueMapper) {
         this.venueRepository = venueRepository;
+        this.venueMapper = venueMapper;
     }
 
     @Override
     public List<VenueDTO> findAll() {
         return venueRepository.findAll().stream()
-                .map(this::toDTO)
+                .map(venueMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<VenueDTO> findById(Long id) {
-        return venueRepository.findById(id).map(this::toDTO);
+        return venueRepository.findById(id)
+                .map(venueMapper::toDTO);
     }
 
     @Override
     public VenueDTO save(VenueDTO venue) {
-        VenueEntity entity = toEntity(venue);
+        VenueEntity entity = venueMapper.toEntity(venue);
         VenueEntity saved = venueRepository.save(entity);
-        return toDTO(saved);
+        return venueMapper.toDTO(saved);
     }
 
     @Override
@@ -44,18 +48,5 @@ public class VenueJpaAdapter implements VenueRepositoryPort {
             return true;
         }
         return false;
-    }
-
-    private VenueDTO toDTO(VenueEntity entity) {
-        return new VenueDTO(entity.getId(), entity.getName(), entity.getAddress());
-    }
-
-    private VenueEntity toEntity(VenueDTO dto) {
-        VenueEntity entity = new VenueEntity();
-        entity.setId(dto.getId());
-        entity.setName(dto.getName());
-        entity.setAddress(dto.getLocation());
-        entity.setCapacity(100); // Default capacity as it is missing in DTO
-        return entity;
     }
 }

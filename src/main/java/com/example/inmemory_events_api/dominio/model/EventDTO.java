@@ -1,23 +1,29 @@
 package com.example.inmemory_events_api.dominio.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Modelo de dominio para Event.
+ * Este modelo NO tiene dependencias de frameworks (JPA, Spring, etc.)
+ * Solo contiene lógica de negocio pura.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventDTO {
     private Long id;
-
-    @NotBlank(message = "El nombre del evento no puede estar vacío")
     private String name;
-
-    @NotNull(message = "El venueId es obligatorio")
     private Long venueId;
-
-    @NotBlank(message = "La fecha no puede estar vacía")
     private String date;
+    
+    /**
+     * Valida que el evento tenga los datos mínimos requeridos
+     */
+    public boolean isValid() {
+        return name != null && !name.isBlank() 
+            && venueId != null 
+            && date != null && !date.isBlank();
+    }
 }

@@ -2,6 +2,7 @@ package com.example.inmemory_events_api.infraestructura.adapters.in.web;
 
 import com.example.inmemory_events_api.dominio.model.VenueDTO;
 import com.example.inmemory_events_api.aplicacion.usecase.VenueService;
+import com.example.inmemory_events_api.infraestructura.adapters.in.web.dto.VenueRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,9 @@ public class VenueController {
     }
 
     @PostMapping
-    public ResponseEntity<VenueDTO> createVenue(@Valid @RequestBody VenueDTO venue) {
-        VenueDTO createdVenue = venueService.createVenue(venue);
+    public ResponseEntity<VenueDTO> createVenue(@Valid @RequestBody VenueRequestDTO request) {
+        VenueDTO venueDTO = mapToDTO(request);
+        VenueDTO createdVenue = venueService.createVenue(venueDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdVenue);
     }
 
@@ -39,8 +41,10 @@ public class VenueController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> updateVenue(@PathVariable Long id, @Valid @RequestBody VenueDTO updatedVenue) {
-        return venueService.updateVenue(id, updatedVenue)
+    public ResponseEntity<VenueDTO> updateVenue(@PathVariable Long id, 
+                                                @Valid @RequestBody VenueRequestDTO request) {
+        VenueDTO venueDTO = mapToDTO(request);
+        return venueService.updateVenue(id, venueDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -52,5 +56,12 @@ public class VenueController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    /**
+     * Mapea VenueRequestDTO (capa web) a VenueDTO (dominio)
+     */
+    private VenueDTO mapToDTO(VenueRequestDTO request) {
+        return new VenueDTO(null, request.getName(), request.getLocation());
     }
 }

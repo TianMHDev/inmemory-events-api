@@ -4,9 +4,9 @@ import com.example.inmemory_events_api.dominio.model.EventDTO;
 import com.example.inmemory_events_api.dominio.ports.out.EventRepositoryPort;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.EventEntity;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.VenueEntity;
+import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.mapper.EventMapper;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,29 +16,41 @@ public class EventJpaAdapter implements EventRepositoryPort {
 
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
+    private final EventMapper eventMapper;
 
-    public EventJpaAdapter(EventRepository eventRepository, VenueRepository venueRepository) {
+    public EventJpaAdapter(EventRepository eventRepository, 
+                          VenueRepository venueRepository,
+                          EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.venueRepository = venueRepository;
+        this.eventMapper = eventMapper;
     }
 
     @Override
     public List<EventDTO> findAll() {
         return eventRepository.findAll().stream()
-                .map(this::toDTO)
+                .map(eventMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<EventDTO> findById(Long id) {
-        return eventRepository.findById(id).map(this::toDTO);
+        return eventRepository.findById(id)
+                .map(eventMapper::toDTO);
     }
 
     @Override
     public EventDTO save(EventDTO event) {
-        EventEntity entity = toEntity(event);
+        EventEntity entity = eventMapper.toEntity(event);
+        
+        // Manejar la relación con Venue manualmente
+        if (event.getVenueId() != null) {
+            Optional<VenueEntity> venue = venueRepository.findById(event.getVenueId());
+            venue.ifPresent(entity::setVenue);
+        }
+        
         EventEntity saved = eventRepository.save(entity);
-        return toDTO(saved);
+        return eventMapper.toDTO(saved);
     }
 
     @Override
@@ -48,34 +60,5 @@ public class EventJpaAdapter implements EventRepositoryPort {
             return true;
         }
         return false;
-    }
-
-    private EventDTO toDTO(EventEntity entity) {
-        String dateStr = entity.getDate() != null ? entity.getDate().toString() : "";
-        Long venueId = entity.getVenue() != null ? entity.getVenue().getId() : null;
-        return new EventDTO(entity.getId(), entity.getTitle(), venueId, dateStr);
-    }
-
-    private EventEntity toEntity(EventDTO dto) {
-        EventEntity entity = new EventEntity();
-        entity.setId(dto.getId());
-        entity.setTitle(dto.getName());
-        entity.setDescription("No description"); // Default description
-        if (dto.getDate() != null && !dto.getDate().isEmpty()) {
-            try {
-                entity.setDate(LocalDate.parse(dto.getDate()));
-            } catch (Exception e) {
-                entity.setDate(LocalDate.now());
-            }
-        } else {
-            entity.setDate(LocalDate.now());
-        }
-
-        if (dto.getVenueId() != null) {
-            Optional<VenueEntity> venue = venueRepository.findById(dto.getVenueId());
-            venue.ifPresent(entity::setVenue);
-        }
-
-        return entity;
     }
 }

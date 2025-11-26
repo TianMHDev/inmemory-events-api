@@ -2,6 +2,7 @@ package com.example.inmemory_events_api.infraestructura.adapters.in.web;
 
 import com.example.inmemory_events_api.dominio.model.EventDTO;
 import com.example.inmemory_events_api.aplicacion.usecase.EventService;
+import com.example.inmemory_events_api.infraestructura.adapters.in.web.dto.EventRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,14 +33,17 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventDTO event) {
-        EventDTO savedEvent = eventService.createEvent(event);
+    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventRequestDTO request) {
+        EventDTO eventDTO = mapToDTO(request);
+        EventDTO savedEvent = eventService.createEvent(eventDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @Valid @RequestBody EventDTO event) {
-        return eventService.updateEvent(id, event)
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, 
+                                                @Valid @RequestBody EventRequestDTO request) {
+        EventDTO eventDTO = mapToDTO(request);
+        return eventService.updateEvent(id, eventDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -51,5 +55,12 @@ public class EventController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    /**
+     * Mapea EventRequestDTO (capa web) a EventDTO (dominio)
+     */
+    private EventDTO mapToDTO(EventRequestDTO request) {
+        return new EventDTO(null, request.getName(), request.getVenueId(), request.getDate());
     }
 }
