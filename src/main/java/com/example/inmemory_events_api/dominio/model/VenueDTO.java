@@ -15,8 +15,10 @@ import lombok.NoArgsConstructor;
 public class VenueDTO {
     private Long id;
     private String name;
-    private String location;
-    
+    private String address;
+    private String city;
+    private Integer capacity;
+
     /**
      * Valida que el venue tenga los datos mínimos requeridos
      */

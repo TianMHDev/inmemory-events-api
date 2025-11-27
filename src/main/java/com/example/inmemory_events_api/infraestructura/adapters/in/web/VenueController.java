@@ -41,8 +41,8 @@ public class VenueController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VenueDTO> updateVenue(@PathVariable Long id, 
-                                                @Valid @RequestBody VenueRequestDTO request) {
+    public ResponseEntity<VenueDTO> updateVenue(@PathVariable Long id,
+            @Valid @RequestBody VenueRequestDTO request) {
         VenueDTO venueDTO = mapToDTO(request);
         return venueService.updateVenue(id, venueDTO)
                 .map(ResponseEntity::ok)
@@ -62,6 +62,11 @@ public class VenueController {
      * Mapea VenueRequestDTO (capa web) a VenueDTO (dominio)
      */
     private VenueDTO mapToDTO(VenueRequestDTO request) {
-        return new VenueDTO(null, request.getName(), request.getLocation());
+        return new VenueDTO(
+                null,
+                request.getName(),
+                request.getAddress(),
+                request.getCity(),
+                request.getCapacity());
     }
 }

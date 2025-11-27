@@ -3,29 +3,29 @@ package com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entidad JPA para Category (Categoría).
- * Relación ManyToMany con Event: Una categoría puede estar en múltiples
- * eventos.
+ * Entidad JPA optimizada para Category (Categoría).
  * 
- * Configuraciones importantes:
- * - mappedBy: Indica que Event es el dueño de la relación (define la JoinTable)
- * - fetch: LAZY para evitar cargar todos los eventos cuando solo necesitamos la
- * categoría
- * - NO usamos cascade aquí para evitar eliminar eventos al borrar una categoría
+ * Optimizaciones:
+ * - @BatchSize para reducir N+1 queries
+ * - FetchType.LAZY en ManyToMany
+ * - Índice en nombre para búsquedas rápidas
  */
 @Entity
-@Table(name = "categories")
+@Table(name = "categories", indexes = {
+        @Index(name = "idx_category_name", columnList = "name")
+})
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CategoryEntity {
 
     @Id
@@ -33,7 +33,7 @@ public class CategoryEntity {
     private Long id;
 
     @NotBlank(message = "El nombre de la categoría no puede estar vacío")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
     @Column(length = 500)
@@ -41,17 +41,13 @@ public class CategoryEntity {
 
     /**
      * Relación ManyToMany con Event (lado inverso).
-     * - mappedBy: "categories" indica que EventEntity.categories es el dueño
-     * - fetch: LAZY para cargar eventos solo cuando se necesiten
-     * - NO usamos cascade para evitar eliminar eventos al borrar categorías
+     * - mappedBy: Event es el dueño de la relación
+     * - fetch: LAZY para evitar N+1
+     * - BatchSize: Optimiza la carga
      */
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
-    @JsonIgnore // Evita serialización circular en JSON
+    @BatchSize(size = 10)
+    @JsonIgnore
+    @Builder.Default
     private List<EventEntity> events = new ArrayList<>();
-
-    // Constructor de conveniencia
-    public CategoryEntity(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 }

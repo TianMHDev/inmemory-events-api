@@ -17,5 +17,11 @@ public class VenueRequestDTO {
     @NotBlank(message = "El nombre del venue no puede estar vacío")
     private String name;
 
-    private String location;
+    @NotBlank(message = "La dirección no puede estar vacía")
+    private String address;
+
+    @NotBlank(message = "La ciudad no puede estar vacía")
+    private String city;
+
+    private Integer capacity;
 }
