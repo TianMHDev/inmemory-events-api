@@ -6,6 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
+/**
+ * Mapper para convertir entre EventEntity (JPA) y EventDTO (Dominio).
+ * MapStruct genera automáticamente la implementación en tiempo de compilación.
+ */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EventMapper {
 
@@ -16,6 +20,7 @@ public interface EventMapper {
 
     @Mapping(source = "name", target = "title")
     @Mapping(target = "venue", ignore = true) // Se maneja manualmente en el adaptador
+    @Mapping(target = "categories", ignore = true) // Se maneja manualmente si es necesario
     @Mapping(target = "description", constant = "No description")
     @Mapping(source = "date", target = "date", dateFormat = "yyyy-MM-dd")
     EventEntity toEntity(EventDTO dto);
