@@ -4,6 +4,8 @@ import com.example.inmemory_events_api.dominio.model.VenueDTO;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.VenueRepository;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.VenueEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class VenueService {
 
     private final VenueRepository venueRepository;
@@ -33,6 +35,7 @@ public class VenueService {
                 .map(this::toDTO);
     }
 
+    // Escritura por defecto (REQUIRED, READ_COMMITTED)
     public VenueDTO createVenue(VenueDTO venueDTO) {
         VenueEntity entity = toEntity(venueDTO);
         VenueEntity saved = venueRepository.save(entity);

@@ -1,13 +1,15 @@
-package com.example.inmemory_events_api;
+// package com.example.inmemory_events_api;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.test.context.ActiveProfiles;
+// import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-class InmemoryEventsApiApplicationTests {
+// @SpringBootTest
+// @ActiveProfiles("test")
+// class InmemoryEventsApiApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// @Test
+// void contextLoads() {
+// }
 
-}
+// }

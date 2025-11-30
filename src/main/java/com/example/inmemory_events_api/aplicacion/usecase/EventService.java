@@ -5,6 +5,8 @@ import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.EventRep
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.EventEntity;
 import com.example.inmemory_events_api.infraestructura.adapters.out.jpa.entity.VenueEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -23,6 +25,12 @@ public class EventService {
 
     // Implementación usando repositorio JPA optimizado
 
+    /**
+     * Transacción de solo lectura.
+     * Mejora el rendimiento al evitar el "dirty checking" de Hibernate.
+     * Propagation.SUPPORTS podría usarse si no se requiere transacción forzosa,
+     * pero REQUIRED es más seguro para consistencia.
+     */
     @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
         // Usamos la query optimizada con join fetch para evitar N+1
@@ -38,6 +46,11 @@ public class EventService {
                 .map(this::toDTO);
     }
 
+    /**
+     * Transacción de escritura (por defecto readOnly=false).
+     * Usa el aislamiento por defecto (usualmente READ_COMMITTED).
+     * Si falla, se hace rollback automático de toda la operación.
+     */
     public EventDTO createEvent(EventDTO eventDTO) {
         EventEntity entity = toEntity(eventDTO);
         EventEntity saved = eventRepository.save(entity);
