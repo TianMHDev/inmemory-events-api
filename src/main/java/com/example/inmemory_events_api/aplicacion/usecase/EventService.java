@@ -60,7 +60,7 @@ public class EventService {
     public Optional<EventDTO> updateEvent(Long id, EventDTO newEvent) {
         return eventRepository.findById(id).map(existing -> {
             existing.setTitle(newEvent.getName());
-            existing.setDate(java.time.LocalDate.parse(newEvent.getDate()));
+            existing.setDate(newEvent.getDate());
             // Nota: Actualizar venue requeriría buscar el venue entity
             return toDTO(eventRepository.save(existing));
         });
@@ -80,7 +80,7 @@ public class EventService {
                 entity.getId(),
                 entity.getTitle(),
                 entity.getVenue() != null ? entity.getVenue().getId() : null,
-                entity.getDate().toString());
+                entity.getDate());
     }
 
     private EventEntity toEntity(EventDTO dto) {
@@ -89,7 +89,7 @@ public class EventService {
         entity.setTitle(dto.getName());
         entity.setDescription("Descripción por defecto"); // DTO no tiene descripción
         if (dto.getDate() != null) {
-            entity.setDate(java.time.LocalDate.parse(dto.getDate()));
+            entity.setDate(dto.getDate());
         }
 
         // Manejo básico de Venue para creación

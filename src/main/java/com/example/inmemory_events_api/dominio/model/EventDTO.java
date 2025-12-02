@@ -1,5 +1,6 @@
 package com.example.inmemory_events_api.dominio.model;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,14 +17,14 @@ public class EventDTO {
     private Long id;
     private String name;
     private Long venueId;
-    private String date;
-    
+    private LocalDate date;
+
     /**
      * Valida que el evento tenga los datos mínimos requeridos
      */
     public boolean isValid() {
-        return name != null && !name.isBlank() 
-            && venueId != null 
-            && date != null && !date.isBlank();
+        return name != null && !name.isBlank()
+                && venueId != null
+                && date != null;
     }
 }
